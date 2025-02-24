@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurora Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <!-- Main Chat Interface -->
+    <div class="container">
+        <!-- Sidebar for Chat History -->
+        <aside class="sidebar hidden">
+            <h2>Chat History</h2>
+            <ul id="chat-list">
+                <!-- Chat sessions will be dynamically populated here -->
+            </ul>
+            <button id="new-chat-btn" class="new-chat-btn">New Chat</button>
+        </aside>
+
+        <!-- Chat Main Area -->
+        <main class="chat-container">
+            <h1>Aurora Assistant 🤖</h1>
+            
+            <!-- Welcome Screen -->
+            <div id="welcome-screen" class="welcome-screen">
+                <div class="logo">
+                    <div class="logo-circle"></div>
+                    <div class="logo-inner-circle"></div>
+                </div>
+                <h1>Welcome to Aurora Assistant</h1>
+                <p>Your AI-powered assistant for seamless conversations.</p>
+                <button id="start-chat-btn" class="start-chat-btn">Start Chat</button>
+            </div>
+
+            <!-- Chat Box - Initially hidden through CSS transform -->
+            <div class="chat-box" id="chat-box" style="display: none;">
+                <!-- Chat messages will appear here -->
+            </div>
+
+            <!-- Loading Indicator -->
+            <div class="loading hidden" id="loading">
+                <div class="logo-thinking">
+                    <div class="logo-circle"></div>
+                    <div class="logo-inner-circle"></div>
+                </div>
+                <p>Thinking...</p>
+            </div>
+
+            <!-- Input Area - Initially hidden through CSS transform -->
+            <div class="input-area" style="display: none;">
+                <input type="text" id="user-input" placeholder="Type your message...">
+                <button id="send-btn">Send</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Link to external JavaScript file -->
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+</body>
+</html>
