@@ -190,51 +190,85 @@ document.addEventListener("DOMContentLoaded", () => {
                 chatList.innerHTML = "";
                 chats.forEach(chat => {
                     const chatItem = document.createElement("li");
-                    
-                    // Create title span
-                    const titleSpan = document.createElement("span");
-                    titleSpan.className = "chat-title";
-                    titleSpan.textContent = chat.title || `Chat ${chat.chat_id}`;
-                    
-                    // Create button group
+                    chatItem.textContent = chat.title || `Chat ${chat.chat_id}`;
+                    chatItem.classList.add("d-flex", "justify-content-between", "align-items-center");
+                    chatItem.setAttribute("data-chat-id", chat.chat_id);
+
                     const buttonGroup = document.createElement("div");
-                    buttonGroup.className = "btn-group";
-                    
+                    buttonGroup.classList.add("btn-group");
+
                     const editButton = document.createElement("button");
-                    editButton.textContent = "✏️ Edit";
-                    editButton.className = "edit-icon";
+                    editButton.textContent = "✏️";
+                    editButton.classList.add("edit-icon");
                     editButton.addEventListener("click", (e) => {
                         e.stopPropagation();
                         openEditChatBar(chat.chat_id, chat.title);
                     });
-    
+
                     const deleteButton = document.createElement("button");
-                    deleteButton.textContent = "🗑️ Delete";
-                    deleteButton.className = "delete-icon";
+                    deleteButton.textContent = "🗑️";
+                    deleteButton.classList.add("delete-icon");
                     deleteButton.addEventListener("click", (e) => {
                         e.stopPropagation();
                         deleteChat(chat.chat_id);
                     });
-    
+
                     buttonGroup.appendChild(editButton);
                     buttonGroup.appendChild(deleteButton);
-                    
-                    // Add elements to chat item
-                    chatItem.appendChild(titleSpan);
                     chatItem.appendChild(buttonGroup);
                     
-                    // Set chat ID and click handler
-                    chatItem.setAttribute("data-chat-id", chat.chat_id);
+                    // Highlight active chat
                     if (chat.chat_id === parseInt(chatId)) {
                         chatItem.classList.add("active");
                     }
-                    chatItem.addEventListener("click", () => loadChatMessages(chat.chat_id));
                     
+                    // Add click event listener to load chat messages
+                    chatItem.addEventListener("click", () => loadChatMessages(chat.chat_id));
                     chatList.appendChild(chatItem);
                 });
             })
             .catch(error => console.error("Error loading chat history:", error));
     }
+
+    // Load chat messages
+    function loadChatMessages(chat_id) {
+        if (isProcessing) return;
+        isProcessing = true;
+        loadingIndicator.classList.add("visible");
+
+        fetch(`/history/${chat_id}`)
+            .then(response => response.json())
+            .then(messages => {
+                if (!Array.isArray(messages)) {
+                    console.error("Invalid messages format");
+                    return;
+                }
+
+                // Clear existing messages
+                chatBox.innerHTML = '';
+
+                // Append each message to the chat box
+                messages.forEach(msg => appendMessage(msg.role, msg.message));
+
+                // Update the active chat ID
+                chatId = chat_id;
+                localStorage.setItem("chat_id", chat_id);
+
+                // Highlight the active chat in the sidebar
+                document.querySelectorAll("#chat-list li").forEach(li => li.classList.remove("active"));
+                const activeChatItem = document.querySelector(`#chat-list li[data-chat-id="${chat_id}"]`);
+                if (activeChatItem) {
+                    activeChatItem.classList.add("active");
+                }
+            })
+            .catch(error => console.error("Error loading chat messages:", error))
+            .finally(() => {
+                loadingIndicator.classList.remove("visible");
+                isProcessing = false;
+                chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom of the chat
+            });
+    }
+
     // Delete chat
     function deleteChat(chatId) {
         if (!confirm("Are you sure you want to delete this chat?")) return;
